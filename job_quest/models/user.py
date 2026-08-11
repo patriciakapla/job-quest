@@ -23,7 +23,7 @@ class User:
         String(150), unique=True, nullable=False
     )
     password_hash: Mapped[str] = mapped_column(nullable=False, repr=False)
-    birth_date: Mapped[date]
+    birth_date: Mapped[date | None] = mapped_column(default=None)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), init=False, server_default=func.now()
     )
