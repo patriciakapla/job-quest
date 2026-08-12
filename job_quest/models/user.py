@@ -2,9 +2,16 @@ from datetime import date, datetime
 from uuid import UUID
 
 from sqlalchemy import DateTime, String, func, text
+from sqlalchemy.dialects.postgresql import CITEXT, DOMAIN
 from sqlalchemy.orm import Mapped, mapped_as_dataclass, mapped_column
 
 from job_quest.models.base import table_registry
+
+domain_email = DOMAIN(
+    'domain_email',
+    CITEXT(),
+    create_type=False,
+)
 
 
 @mapped_as_dataclass(table_registry)
@@ -20,7 +27,7 @@ class User:
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(
-        String(150), unique=True, nullable=False
+        domain_email, unique=True, nullable=False
     )
     password_hash: Mapped[str] = mapped_column(nullable=False, repr=False)
     birth_date: Mapped[date | None] = mapped_column(default=None)
