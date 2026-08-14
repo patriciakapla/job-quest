@@ -7,7 +7,7 @@ from job_quest.models.base import table_registry
 
 
 @mapped_as_dataclass(table_registry)
-class Answers:
+class Answer:
     __tablename__ = 'answers'
 
     id: Mapped[UUID] = mapped_column(

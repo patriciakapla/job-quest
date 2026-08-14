@@ -11,6 +11,9 @@ from testcontainers.postgres import PostgresContainer
 from job_quest.core.database import get_session
 from job_quest.main import app
 from job_quest.models.base import table_registry
+from tests.factories.answer_factory import AnswerFactory
+from tests.factories.resume_factory import ResumeFactory
+from tests.factories.user_factory import UserFactory
 
 
 @pytest.fixture
@@ -74,3 +77,33 @@ def _mock_db_time(model, time=datetime(2026, 8, 12, tzinfo=UTC)):
 
     event.remove(model, 'before_insert', fake_time_hook)
     event.remove(model, 'before_update', fake_time_hook)
+
+
+@pytest_asyncio.fixture
+async def user(session: AsyncSession):
+
+    # pwd = 'mystery'
+    user = UserFactory()  # UserFactory(password=get_password_hash(pwd))
+    session.add(user)
+    await session.commit()
+    # user.clean_password = pwd  # pyright: ignore
+
+    return user
+
+
+@pytest_asyncio.fixture
+async def resume(session: AsyncSession, user):
+
+    resume = ResumeFactory(user_id=user.id)
+    session.add(resume)
+    await session.commit()
+
+    return resume
+
+
+@pytest_asyncio.fixture
+async def answer(session: AsyncSession):
+    answer = AnswerFactory()
+    session.add(answer)
+    await session.commit()
+    return answer
