@@ -50,7 +50,7 @@ class Application:
     location: Mapped[str | None] = mapped_column(String(100), default=None)
     description: Mapped[str | None] = mapped_column(default=None)
     notes: Mapped[str | None] = mapped_column(default=None)
-    technologies: Mapped[str | None] = mapped_column(String(150), default=None)
+    technologies: Mapped[str | None] = mapped_column(String(300), default=None)
     currency_code: Mapped[str | None] = mapped_column(CHAR(3), default=None)
     offered_salary_min: Mapped[Decimal | None] = mapped_column(
         Numeric(12, 2), default=None

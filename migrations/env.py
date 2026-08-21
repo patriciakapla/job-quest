@@ -3,7 +3,7 @@ from logging.config import fileConfig
 
 from job_quest.core.settings import Settings
 from job_quest.models.base import table_registry
-from job_quest.models.answers import Answers
+from job_quest.models.answer import Answer
 from job_quest.models.application import Application
 from job_quest.models.user import User
 from job_quest.models.resume import Resume
