@@ -42,6 +42,9 @@ class Application:
     id: Mapped[UUID] = mapped_column(
         init=False, primary_key=True, server_default=text('gen_random_uuid()')
     )
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True
+    )
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     resume_id: Mapped[UUID | None] = mapped_column(
         ForeignKey('resumes.id'), default=None

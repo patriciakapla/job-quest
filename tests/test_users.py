@@ -17,11 +17,10 @@ async def test_create_user(session: AsyncSession, mock_db_time):
 
         expected = {
             'id': new_user.id,
-            'username': new_user.username,
             'first_name': new_user.first_name,
             'last_name': new_user.last_name,
             'email': new_user.email,
-            'password_hash': new_user.password_hash,
+            'google_id': new_user.google_id,
             'birth_date': new_user.birth_date,
             'created_at': time,
             'updated_at': time,
@@ -30,7 +29,7 @@ async def test_create_user(session: AsyncSession, mock_db_time):
         session.expunge_all()
 
         user = await session.scalar(
-            select(User).where(User.username == expected['username'])
+            select(User).where(User.id == expected['id'])
         )
 
     assert user is not None

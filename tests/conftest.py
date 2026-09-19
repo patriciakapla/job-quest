@@ -12,6 +12,7 @@ from job_quest.core.database import get_session
 from job_quest.main import app
 from job_quest.models.base import table_registry
 from tests.factories.answer_factory import AnswerFactory
+from tests.factories.application_factory import ApplicationFactory
 from tests.factories.resume_factory import ResumeFactory
 from tests.factories.user_factory import UserFactory
 
@@ -107,3 +108,11 @@ async def answer(session: AsyncSession):
     session.add(answer)
     await session.commit()
     return answer
+
+
+@pytest_asyncio.fixture
+async def application(session: AsyncSession, resume, user):
+    application = ApplicationFactory(resume_id=resume.id, user_id=user.id)
+    session.add(application)
+    await session.commit()
+    return application

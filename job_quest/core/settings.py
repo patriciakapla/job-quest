@@ -11,3 +11,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(init=False)
     ALGORITHM: str = Field(init=False)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(init=False)
+    GOOGLE_CLIENT_ID: str = Field(init=False)
+    GOOGLE_CLIENT_SECRET: str = Field(init=False)
+    SESSION_SECRET: str = Field(init=False)
+    SESSION_HTTPS_ONLY: bool = Field(init=False)

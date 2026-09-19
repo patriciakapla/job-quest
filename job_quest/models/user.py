@@ -21,15 +21,12 @@ class User:
     id: Mapped[UUID] = mapped_column(
         init=False, primary_key=True, server_default=text('gen_random_uuid()')
     )
-    username: Mapped[str] = mapped_column(
-        String(50), unique=True, nullable=False
-    )
+    google_id: Mapped[str] = mapped_column(unique=True)
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(
         domain_email, unique=True, nullable=False
     )
-    password_hash: Mapped[str] = mapped_column(nullable=False, repr=False)
     birth_date: Mapped[date | None] = mapped_column(default=None)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), init=False, server_default=func.now()

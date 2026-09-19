@@ -9,14 +9,15 @@ from tests.factories.application_factory import ApplicationFactory
 
 
 @pytest.mark.asyncio
-async def test_create_application(session: AsyncSession, resume):
-    application = ApplicationFactory(resume_id=resume.id)
+async def test_create_application(session: AsyncSession, resume, user):
+    application = ApplicationFactory(resume_id=resume.id, user_id=user.id)
     session.add(application)
     await session.commit()
 
     expected_application = {
         'id': application.id,
         'title': application.title,
+        'user_id': user.id,
         'company': application.company,
         'location': application.location,
         'description': application.description,

@@ -8,9 +8,8 @@ class UserFactory(Factory):
     class Meta:
         model = User
 
-    username = Faker('user_name')
     first_name = Faker('first_name')
     last_name = Faker('last_name')
     email = Faker('ascii_email')
-    password_hash = Faker('password')
+    google_id = Faker('numerify', text='#####################')
     birth_date = Faker('date_object')
