@@ -8,6 +8,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from job_quest.core.oauth import oauth
+from job_quest.core.security import get_current_user
+from job_quest.main import app
 from job_quest.models.user import User
 from tests.factories.user_factory import UserFactory
 
@@ -148,3 +150,64 @@ def test_google_callback_rejects_unverified_email(client, monkeypatch):
     }
     assert client.cookies.get('session') is None
     authorize_access_token.assert_awaited_once()
+
+
+def test_get_me_returns_authenticated_user(client, user):
+    app.dependency_overrides[get_current_user] = lambda: user
+
+    response = client.get('/auth/me')
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'id': str(user.id),
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+        'birth_date': user.birth_date.isoformat(),
+        'created_at': user.created_at.isoformat().replace('+00:00', 'Z'),
+        'updated_at': user.updated_at.isoformat().replace('+00:00', 'Z'),
+    }
+
+
+@pytest.mark.asyncio
+async def test_logout_clears_authenticated_session(client, monkeypatch):
+    profile = UserFactory.build()
+
+    authorize_access_token = AsyncMock(
+        return_value={
+            'userinfo': {
+                'sub': profile.google_id,
+                'email': profile.email,
+                'email_verified': True,
+                'given_name': profile.first_name,
+                'family_name': profile.last_name,
+            }
+        }
+    )
+
+    monkeypatch.setattr(
+        oauth.google,
+        'authorize_access_token',
+        authorize_access_token,
+    )
+
+    login_response = client.get(
+        '/auth/google/callback',
+        follow_redirects=False,
+    )
+
+    assert login_response.status_code == HTTPStatus.SEE_OTHER
+    assert client.cookies.get('session') is not None
+
+    logout_response = client.post('/auth/logout')
+
+    assert logout_response.status_code == HTTPStatus.NO_CONTENT
+    assert logout_response.content == b''
+    assert client.cookies.get('session') is None
+
+    me_response = client.get('/auth/me')
+
+    assert me_response.status_code == HTTPStatus.UNAUTHORIZED
+    assert me_response.json() == {
+        'detail': 'Authentication required.',
+    }

@@ -5,6 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from job_quest.core.database import get_session
 from job_quest.core.oauth import oauth
+from job_quest.core.security import get_current_user
+from job_quest.models.user import User
+from job_quest.schemas.user import UserPublic
 from job_quest.services.auth_service import AuthService
 
 router = APIRouter(prefix='/auth', tags=['auth'])
@@ -70,3 +73,13 @@ async def google_callback(
         url='/',
         status_code=status.HTTP_303_SEE_OTHER,
     )
+
+
+@router.get('/me', response_model=UserPublic)
+async def get_me(current_user: User = Depends(get_current_user)) -> User:
+    return current_user
+
+
+@router.post('/logout', status_code=status.HTTP_204_NO_CONTENT)
+async def logout(request: Request) -> None:
+    request.session.clear()
