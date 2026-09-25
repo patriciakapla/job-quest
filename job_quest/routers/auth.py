@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from authlib.integrations.base_client import OAuthError
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
@@ -12,6 +14,9 @@ from job_quest.services.auth_service import AuthService
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
+DB_Session = Annotated[AsyncSession, Depends(get_session)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
+
 
 @router.get('/google')
 async def login_with_google(request: Request):
@@ -20,9 +25,7 @@ async def login_with_google(request: Request):
 
 
 @router.get('/google/callback', name='google_callback')
-async def google_callback(
-    request: Request, session: AsyncSession = Depends(get_session)
-):
+async def google_callback(request: Request, session: DB_Session):
     try:
         token = await oauth.google.authorize_access_token(request)
     except OAuthError as error:
@@ -76,7 +79,7 @@ async def google_callback(
 
 
 @router.get('/me', response_model=UserPublic)
-async def get_me(current_user: User = Depends(get_current_user)) -> User:
+async def get_me(current_user: CurrentUser) -> User:
     return current_user
 
 

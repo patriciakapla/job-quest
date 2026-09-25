@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from job_quest.models.user import User
+from job_quest.schemas.user import UserUpdate
 
 
 class UserRepository:
@@ -20,3 +21,15 @@ class UserRepository:
 
     def add(self, user: User) -> None:
         self.session.add(user)
+
+    async def delete(self, user: User) -> None:
+        await self.session.delete(user)
+
+    @staticmethod
+    def update(user: User, data: UserUpdate) -> User:
+        changes = data.model_dump(exclude_unset=True)
+
+        for field, value in changes.items():
+            setattr(user, field, value)
+
+        return user

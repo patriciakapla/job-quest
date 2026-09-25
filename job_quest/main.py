@@ -3,6 +3,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from job_quest.core.settings import Settings
 from job_quest.routers.auth import router as google_auth_router
+from job_quest.routers.users import router as users_router
 
 app = FastAPI()
 
@@ -22,3 +23,4 @@ app.add_middleware(
 )
 
 app.include_router(google_auth_router)
+app.include_router(users_router)
