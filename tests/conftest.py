@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer
 
 from job_quest.core.database import get_session
+from job_quest.core.security import get_current_user
 from job_quest.main import app
 from job_quest.models.base import table_registry
 from tests.factories.answer_factory import AnswerFactory
@@ -27,6 +28,18 @@ def client(session):
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def authenticated_client(client, user):
+    def override_get_current_user():
+        return user
+
+    app.dependency_overrides[get_current_user] = override_get_current_user
+
+    yield client
+
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 @pytest.fixture(scope='session')
