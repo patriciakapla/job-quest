@@ -1,5 +1,5 @@
 from typing import Annotated
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,3 +30,32 @@ async def create_resume(
     return await service.create(
         data, current_user.id, random_object_key, size_bytes
     )
+
+
+@router.get(
+    '/{resume_id}', response_model=ResumePublic, status_code=status.HTTP_200_OK
+)
+async def get_resume_by_id(
+    session: DB_Session, current_user: current_user, resume_id: UUID
+):
+    service = ResumeService(session)
+
+    return await service.get_by_id(current_user.id, resume_id)
+
+
+@router.get(
+    '/', response_model=list[ResumePublic], status_code=status.HTTP_200_OK
+)
+async def get_resume_list(session: DB_Session, current_user: current_user):
+    service = ResumeService(session)
+
+    return await service.get_resume_list(current_user.id)
+
+
+@router.delete('/{resume_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_resume(
+    session: DB_Session, current_user: current_user, resume_id: UUID
+):
+    service = ResumeService(session)
+
+    await service.delete_resume(current_user.id, resume_id)
