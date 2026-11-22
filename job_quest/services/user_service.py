@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from job_quest.models.user import User
 from job_quest.repositories.user_repository import UserRepository
-from job_quest.schemas.user import UserUpdate
+from job_quest.schemas.user_schemas import UserUpdate
 
 
 class UserService:

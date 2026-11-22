@@ -4,12 +4,15 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from job_quest.exceptions import InvalidSalaryRangeError
 from job_quest.models.application import Application
+from job_quest.schemas.application_schemas import ApplicationCreate
+from job_quest.services.application_service import ApplicationService
 from tests.factories.application_factory import ApplicationFactory
 
 
 @pytest.mark.asyncio
-async def test_create_application(session: AsyncSession, resume, user):
+async def test_create_application_db(session: AsyncSession, resume, user):
     application = ApplicationFactory(resume_id=resume.id, user_id=user.id)
     session.add(application)
     await session.commit()
@@ -45,3 +48,34 @@ async def test_create_application(session: AsyncSession, resume, user):
 
     assert application is not None
     assert asdict(application) == expected_application
+
+
+@pytest.mark.asyncio
+async def test_application_service_create(session: AsyncSession, user, resume):
+    application = ApplicationFactory(resume_id=resume.id, user_id=user.id)
+
+    data = ApplicationCreate(
+        title=application.title,
+        offered_salary_min=application.offered_salary_min,
+        offered_salary_max=application.offered_salary_max,
+    )
+
+    service = ApplicationService(session)
+    application = await service.create(data, user.id)
+
+    assert application.id is not None
+    assert application.user_id == user.id
+    assert application.title == data.title
+    assert application.offered_salary_min == data.offered_salary_min
+    assert application.offered_salary_max == data.offered_salary_max
+
+
+@pytest.mark.asyncio
+async def test_application_create_rejects_invalid_salary_range(user, resume):
+    application = ApplicationFactory(resume_id=resume.id, user_id=user.id)
+    with pytest.raises(InvalidSalaryRangeError):
+        ApplicationCreate(
+            title=application.title,
+            offered_salary_min=application.offered_salary_max,
+            offered_salary_max=application.offered_salary_min,
+        )

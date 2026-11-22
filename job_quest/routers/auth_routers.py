@@ -9,7 +9,7 @@ from job_quest.core.database import get_session
 from job_quest.core.oauth import oauth
 from job_quest.core.security import get_current_user
 from job_quest.models.user import User
-from job_quest.schemas.user import UserPublic
+from job_quest.schemas.user_schemas import UserPublic
 from job_quest.services.auth_service import AuthService
 
 router = APIRouter(prefix='/auth', tags=['auth'])

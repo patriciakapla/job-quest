@@ -10,6 +10,7 @@ from pydantic import (
     model_validator,
 )
 
+from job_quest.exceptions import InvalidSalaryRangeError
 from job_quest.models.status import Status
 
 
@@ -41,6 +42,66 @@ class ApplicationCreate(BaseModel):
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
     title: str = Field(min_length=1, max_length=150)
+    resume_id: UUID | None = None
+    company: str | None = Field(default=None, max_length=100)
+    location: str | None = Field(default=None, max_length=100)
+    description: str | None = None
+    notes: str | None = None
+    technologies: str | None = Field(default=None, max_length=300)
+    currency_code: str | None = Field(default=None, min_length=3, max_length=3)
+    offered_salary_min: Decimal | None = Field(
+        default=None, max_digits=12, decimal_places=2, ge=0
+    )
+    offered_salary_max: Decimal | None = Field(
+        default=None, max_digits=12, decimal_places=2, ge=0
+    )
+    expected_salary_min: Decimal | None = Field(
+        default=None, max_digits=12, decimal_places=2, ge=0
+    )
+    expected_salary_max: Decimal | None = Field(
+        default=None, max_digits=12, decimal_places=2, ge=0
+    )
+    job_posting_url: str | None = None
+    source_platform: str | None = Field(default=None, max_length=100)
+    applied_at: date | None = None
+    status: Status | None = None
+
+    @model_validator(mode='after')
+    def validate_salary_range(self):
+        ranges = {
+            'expected': (self.expected_salary_min, self.expected_salary_max),
+            'offered': (self.offered_salary_min, self.offered_salary_max),
+        }
+
+        for salary_type, (minimum, maximum) in ranges.items():
+            if (
+                minimum is not None
+                and maximum is not None
+                and maximum < minimum
+            ):
+                raise InvalidSalaryRangeError(salary_type)
+
+        return self
+
+    @field_validator('applied_at')
+    @classmethod
+    def applied_at_cant_be_in_future(cls, value: date | None) -> date | None:
+        if value is not None and value > date.today():
+            raise ValueError("Application date can't be a future date")
+        return value
+
+    @field_validator('title', 'status')
+    @classmethod
+    def required_fields_cant_be_null(cls, value: str) -> str:
+        if value is None:
+            raise ValueError("Required field can't be null")
+        return value
+
+
+class ApplicationUpdate(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+
+    title: str | None = Field(default=None, min_length=1, max_length=150)
     resume_id: UUID | None = None
     company: str | None = Field(default=None, max_length=100)
     location: str | None = Field(default=None, max_length=100)
