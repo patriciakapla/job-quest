@@ -11,3 +11,8 @@ class InvalidSalaryRangeError(Exception):
 class ApplicationNotFoundError(Exception):
     def __init__(self) -> None:
         super().__init__('Job application not found')
+
+
+class ResumeNotFoundError(Exception):
+    def __init__(self) -> None:
+        super().__init__('Resume not found')

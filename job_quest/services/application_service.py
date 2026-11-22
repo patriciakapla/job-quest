@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from job_quest.exceptions import (
     ApplicationNotFoundError,
     InvalidSalaryRangeError,
+    ResumeNotFoundError,
 )
 from job_quest.models.application import Application
 from job_quest.repositories.application_repository import ApplicationRepository
@@ -24,6 +25,10 @@ class ApplicationService:
 
     async def create(self, data: ApplicationCreate, user_id: UUID):
         application_data = data.model_dump(exclude_unset=True)
+
+        resume_id = application_data.get('resume_id')
+
+        await self._validate_resume(user_id, resume_id)
 
         offered_min = application_data.get('offered_salary_min')
         offered_max = application_data.get('offered_salary_max')
@@ -60,7 +65,9 @@ class ApplicationService:
 
         update = data.model_dump(exclude_unset=True)
 
-        await self._validate_resume(application, user_id)
+        resume_id = update.get('resume_id', application.resume_id)
+
+        await self._validate_resume(user_id, resume_id)
 
         offered_min = update.get(
             'offered_salary_min', application.offered_salary_min
@@ -96,9 +103,16 @@ class ApplicationService:
             raise InvalidSalaryRangeError(salary_type)
 
     async def _validate_resume(
-        self, application: Application, user_id: UUID
+        self, user_id: UUID, resume_id: UUID | None
     ) -> None:
-        resume_id = application.resume_id
 
-        if resume_id is not None:
-            await self.resumes.get_by_id(user_id=user_id, resume_id=resume_id)
+        if resume_id is None:
+            return
+
+        resume = await self.resumes.get_by_id(
+            user_id=user_id,
+            resume_id=resume_id,
+        )
+
+        if resume is None:
+            raise ResumeNotFoundError()
