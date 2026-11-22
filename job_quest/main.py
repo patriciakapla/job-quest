@@ -12,6 +12,7 @@ from job_quest.routers.applications_routers import (
     router as applications_router,
 )
 from job_quest.routers.auth_routers import router as google_auth_router
+from job_quest.routers.resumes_routers import router as resumes_router
 from job_quest.routers.users_routers import router as users_router
 
 app = FastAPI()
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(google_auth_router)
 app.include_router(users_router)
 app.include_router(applications_router)
+app.include_router(resumes_router)
 
 
 @app.exception_handler(InvalidSalaryRangeError)

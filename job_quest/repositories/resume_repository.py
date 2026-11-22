@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from job_quest.models.resume import Resume
@@ -19,3 +19,21 @@ class ResumeRepository:
         resume = await self.session.scalar(query)
 
         return resume
+
+    async def get_user_resumes(self, user_id: UUID) -> list[Resume]:
+        query = (
+            select(Resume)
+            .where(Resume.user_id == user_id)
+            .order_by(desc(Resume.uploaded_at))
+        )
+        result = await self.session.scalars(query)
+
+        resume_list = list(result.all())
+
+        return resume_list
+
+    def add(self, resume: Resume):
+        self.session.add(resume)
+
+    async def delete(self, resume: Resume) -> None:
+        await self.session.delete(resume)
