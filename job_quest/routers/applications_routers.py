@@ -38,3 +38,14 @@ async def update_job_application(
     service = ApplicationService(session)
 
     return await service.update(data, current_user.id, application_id)
+
+
+@router.get('/{application_id}', response_model=ApplicationPublic)
+async def get_application_by_id(
+    session: DB_Session,
+    current_user: CurrentUser,
+    application_id: UUID,
+):
+    service = ApplicationService(session)
+
+    return await service.get_application_by_id(current_user.id, application_id)

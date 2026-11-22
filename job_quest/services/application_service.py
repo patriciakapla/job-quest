@@ -95,6 +95,16 @@ class ApplicationService:
 
         return application
 
+    async def get_application_by_id(self, user_id: UUID, application_id: UUID):
+        application = await self.applications.get_by_id(
+            user_id, application_id
+        )
+
+        if application is None:
+            raise ApplicationNotFoundError()
+
+        return application
+
     @staticmethod
     def _validate_salary_range(
         salary_type: str, minimum: Decimal | None, maximum: Decimal | None
