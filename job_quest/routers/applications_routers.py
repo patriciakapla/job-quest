@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from job_quest.core.database import get_session
@@ -19,7 +19,9 @@ DB_Session = Annotated[AsyncSession, Depends(get_session)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-@router.post('/', response_model=ApplicationPublic)
+@router.post(
+    '/', response_model=ApplicationPublic, status_code=status.HTTP_201_CREATED
+)
 async def create_job_application(
     session: DB_Session, current_user: CurrentUser, data: ApplicationCreate
 ):
@@ -28,7 +30,11 @@ async def create_job_application(
     return await service.create(data, current_user.id)
 
 
-@router.patch('/{application_id}', response_model=ApplicationPublic)
+@router.patch(
+    '/{application_id}',
+    response_model=ApplicationPublic,
+    status_code=status.HTTP_200_OK,
+)
 async def update_job_application(
     session: DB_Session,
     current_user: CurrentUser,
@@ -40,7 +46,11 @@ async def update_job_application(
     return await service.update(data, current_user.id, application_id)
 
 
-@router.get('/{application_id}', response_model=ApplicationPublic)
+@router.get(
+    '/{application_id}',
+    response_model=ApplicationPublic,
+    status_code=status.HTTP_200_OK,
+)
 async def get_application_by_id(
     session: DB_Session,
     current_user: CurrentUser,
@@ -51,7 +61,9 @@ async def get_application_by_id(
     return await service.get_application_by_id(current_user.id, application_id)
 
 
-@router.get('/', response_model=list[ApplicationPublic])
+@router.get(
+    '/', response_model=list[ApplicationPublic], status_code=status.HTTP_200_OK
+)
 async def get_application_list(
     session: DB_Session,
     current_user: CurrentUser,
@@ -59,3 +71,12 @@ async def get_application_list(
     service = ApplicationService(session)
 
     return await service.get_application_list(current_user.id)
+
+
+@router.delete('/{application_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_application(
+    session: DB_Session, current_user: CurrentUser, application_id: UUID
+):
+    service = ApplicationService(session)
+
+    await service.delete_application(current_user.id, application_id)

@@ -112,6 +112,17 @@ class ApplicationService:
         )
         return application_list
 
+    async def delete_application(self, user_id: UUID, application_id: UUID):
+        application = await self.applications.get_by_id(
+            user_id, application_id
+        )
+
+        if application is None:
+            raise ApplicationNotFoundError()
+
+        await self.applications.delete(application)
+        await self.session.commit()
+
     @staticmethod
     def _validate_salary_range(
         salary_type: str, minimum: Decimal | None, maximum: Decimal | None
