@@ -49,3 +49,13 @@ async def get_application_by_id(
     service = ApplicationService(session)
 
     return await service.get_application_by_id(current_user.id, application_id)
+
+
+@router.get('/', response_model=list[ApplicationPublic])
+async def get_application_list(
+    session: DB_Session,
+    current_user: CurrentUser,
+):
+    service = ApplicationService(session)
+
+    return await service.get_application_list(current_user.id)

@@ -105,6 +105,13 @@ class ApplicationService:
 
         return application
 
+    async def get_application_list(self, user_id: UUID):
+
+        application_list = await self.applications.get_user_applications(
+            user_id
+        )
+        return application_list
+
     @staticmethod
     def _validate_salary_range(
         salary_type: str, minimum: Decimal | None, maximum: Decimal | None
