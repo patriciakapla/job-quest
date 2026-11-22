@@ -47,7 +47,7 @@ class Application:
     )
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     resume_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey('resumes.id'), default=None
+        ForeignKey('resumes.id', ondelete='SET NULL'), default=None
     )
     company: Mapped[str | None] = mapped_column(String(100), default=None)
     location: Mapped[str | None] = mapped_column(String(100), default=None)
