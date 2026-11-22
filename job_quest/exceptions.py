@@ -16,3 +16,8 @@ class ApplicationNotFoundError(Exception):
 class ResumeNotFoundError(Exception):
     def __init__(self) -> None:
         super().__init__('Resume not found')
+
+
+class UserLimitExceeded(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__('User storage limit exceeded')

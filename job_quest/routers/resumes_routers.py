@@ -22,9 +22,11 @@ async def create_resume(
     session: DB_Session, current_user: current_user, data: ResumeCreate
 ):
 
-    # TODO: IMPLEMENT FILE UPLOAD TO STORAGE
+    # TODO: IMPLEMENT FILE UPLOAD TO STORAGE (CLOUDFLARE R2)
+    # already added boto3 to uv
     random_object_key = str(uuid4())
     size_bytes = 200
+
     service = ResumeService(session)
 
     return await service.create(

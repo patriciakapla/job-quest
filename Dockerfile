@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uv", "run", "fastapi", "dev", "job_quest/main.py", "--host", "0.0.0.0"]
+CMD ["uv", "run", "fastapi", "run", "--entrypoint", "job_quest.main:app", "--host", "0.0.0.0", "--port", "8000"]
